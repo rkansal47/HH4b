@@ -112,11 +112,6 @@ for ptcut in pt_cuts:
         ]
     )
 
-overlaps
-
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps), axis=1)
-pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i}" for i in range(3)])
+pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(3)])
 pddf.to_csv("overlaps.csv", index=False)
-
-
-pddf
