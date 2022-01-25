@@ -58,6 +58,7 @@ overlaps_resolved = []
 
 pt_cuts = np.arange(300, 601, 50)
 
+
 for ptcut in pt_cuts:
     resolved_veto_pt = (
         (events.fatJet1Pt < ptcut)
@@ -68,9 +69,14 @@ for ptcut in pt_cuts:
         | (events.fatJet2NSubJets < 2)
     )
 
-    resolved_accept = (
-        (events.jet1Pt > 0) & (events.jet2Pt > 0) & (events.jet3Pt > 0) & (events.jet4Pt > 0)
+    nbtagged_jets = (
+        ak.values_astype((events.jet1Pt > 0), int)
+        + ak.values_astype((events.jet2Pt > 0), int)
+        + ak.values_astype((events.jet3Pt > 0), int)
+        + ak.values_astype((events.jet4Pt > 0), int)
     )
+
+    resolved_accept = nbtagged_jets >= 3
 
     # should technically include BDT selection for this?
     boosted_acceptances = []
@@ -123,8 +129,8 @@ for ptcut in pt_cuts:
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_boosted), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(3)])
-pddf.to_csv("overlaps_boosted.csv", index=False)
+pddf.to_csv("overlaps_boosted_3b.csv", index=False)
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_resolved), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(3)])
-pddf.to_csv("overlaps_resolved.csv", index=False)
+pddf.to_csv("overlaps_resolved_3b.csv", index=False)
