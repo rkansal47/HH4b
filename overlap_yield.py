@@ -53,7 +53,8 @@ print(
 
 events = uproot.concatenate(files, branches)
 
-overlaps = []
+overlaps_boosted = []
+overlaps_resolved = []
 
 pt_cuts = np.arange(300, 601, 50)
 
@@ -104,7 +105,7 @@ for ptcut in pt_cuts:
         & (events.fatJet2PNetXbb < 0.95)
     )
 
-    overlaps.append(
+    overlaps_boosted.append(
         [
             ak.sum(resolved_veto_pt & resolved_accept & boosted_acceptances[i])
             / ak.sum(boosted_acceptances[i])
@@ -112,6 +113,18 @@ for ptcut in pt_cuts:
         ]
     )
 
-table = np.concatenate((pt_cuts[:, np.newaxis], overlaps), axis=1)
+    overlaps_resolved.append(
+        [
+            ak.sum(resolved_veto_pt & resolved_accept & boosted_acceptances[i])
+            / ak.sum(resolved_veto_pt & resolved_accept)
+            for i in range(3)
+        ]
+    )
+
+table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_boosted), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(3)])
-pddf.to_csv("overlaps.csv", index=False)
+pddf.to_csv("overlaps_boosted.csv", index=False)
+
+table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_resolved), axis=1)
+pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(3)])
+pddf.to_csv("overlaps_resolved.csv", index=False)
