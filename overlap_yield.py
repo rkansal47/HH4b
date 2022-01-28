@@ -71,7 +71,7 @@ for ptcut in pt_cuts:
         + ak.values_astype((events.jet4Pt > 0), int)
     )
 
-    resolved_accept = nbtagged_jets > 3
+    resolved_accept = nbtagged_jets >= 3
 
     # should technically include BDT selection for this?
     boosted_acceptances = []
@@ -131,8 +131,8 @@ for ptcut in pt_cuts:
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_boosted), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(NUM_REGIONS)])
-pddf.to_csv("overlaps_boosted_4b_bdt.csv", index=False)
+pddf.to_csv("overlaps_boosted_3b_bdt.csv", index=False)
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_resolved), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(NUM_REGIONS)])
-pddf.to_csv("overlaps_resolved_4b_bdt.csv", index=False)
+pddf.to_csv("overlaps_resolved_3b_bdt.csv", index=False)
