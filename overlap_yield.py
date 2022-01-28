@@ -71,13 +71,23 @@ for ptcut in pt_cuts:
         + ak.values_astype((events.jet4Pt > 0), int)
     )
 
-    resolved_accept = nbtagged_jets >= 3
+    resolved_accept = nbtagged_jets > 3
 
     # should technically include BDT selection for this?
     boosted_acceptances = []
 
+    baseline_cut = (
+        (events.fatJet1Pt > ptcut)
+        & (events.fatJet2Pt > ptcut)
+        & (events.fatJet1MassSD > 50)
+        & (events.fatJet2MassRegressed > 50)
+        & (events.fatJet1PNetXbb > 0.8)
+    )
+
     # boosted category 1
-    boosted_acceptances.append((events[BDT_VAR] > 0.43) & (events.fatJet2PNetXbb > 0.98))
+    boosted_acceptances.append(
+        (events[BDT_VAR] > 0.43) & (events.fatJet2PNetXbb > 0.98) & baseline_cut
+    )
 
     # boosted category 2
     boosted_acceptances.append(
@@ -86,6 +96,7 @@ for ptcut in pt_cuts:
             | ((events[BDT_VAR] > 0.43) & (events.fatJet2PNetXbb > 0.95))
         )
         & ~boosted_acceptances[0]
+        & baseline_cut
     )
 
     # boosted category 3
@@ -93,10 +104,13 @@ for ptcut in pt_cuts:
         ((events[BDT_VAR] > 0.03) & (events.fatJet2PNetXbb > 0.95))
         & ~boosted_acceptances[0]
         & ~boosted_acceptances[1]
+        & baseline_cut
     )
 
     # qcd cr
-    boosted_acceptances.append((events[BDT_VAR] > 0.03) & (events.fatJet2PNetXbb < 0.95))
+    boosted_acceptances.append(
+        (events[BDT_VAR] > 0.03) & (events.fatJet2PNetXbb < 0.95) & baseline_cut
+    )
 
     overlaps_boosted.append(
         [
@@ -117,8 +131,8 @@ for ptcut in pt_cuts:
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_boosted), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(NUM_REGIONS)])
-pddf.to_csv("overlaps_boosted_3b.csv", index=False)
+pddf.to_csv("overlaps_boosted_4b_bdt.csv", index=False)
 
 table = np.concatenate((pt_cuts[:, np.newaxis], overlaps_resolved), axis=1)
 pddf = pd.DataFrame(table, columns=["pT cut"] + [f"Region {i + 1}" for i in range(NUM_REGIONS)])
-pddf.to_csv("overlaps_resolved_3b.csv", index=False)
+pddf.to_csv("overlaps_resolved_4b_bdt.csv", index=False)
